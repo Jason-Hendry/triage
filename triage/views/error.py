@@ -6,8 +6,8 @@ from triage.models import Error, Comment, Tag, User, ErrorInstance, Project
 from triage.util import GithubLinker
 from time import time
 from os import path
-
-import logging
+import datetime
+import logging, random
 
 def get_errors(request, fetch_recent=False):
     project = get_selected_project(request)
@@ -73,6 +73,26 @@ def error_list(request):
         'selected_project': get_selected_project(request),
         'errors': get_errors(request),
         'basename': path.basename
+    }
+
+
+@view_config(route_name='error_graph', permission='authenticated', renderer='error-graph.html')
+def error_graph(request):
+    available_projects = request.registry.settings['projects']
+    selected_project = get_selected_project(request)
+
+    error_id = request.matchdict['id']
+    try:
+        error = Error.objects(project=selected_project['id']).with_id(error_id)
+    except:
+        return HTTPNotFound()
+
+    return {
+        'hourly_occurences':  error.get_hourly_occurrence(),
+        'daily_occurences': error.get_daily_occurrence(),
+        'error': error,
+        'selected_project': selected_project,
+        'available_projects': available_projects
     }
 
 

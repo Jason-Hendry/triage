@@ -542,3 +542,13 @@ body {
 .users .created {
 	width: 100px;
 }
+
+.graph {
+	min-width: 400px;
+	height: 400px;
+	margin: 0 auto;
+}
+
+.graph .occurences {
+	display: none;
+}
