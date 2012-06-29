@@ -5,6 +5,7 @@ try:
 except:
     from md5 import new as md5
 
+from pymongo.code import Code
 from time import time
 from mongoengine import *
 from mongoengine.queryset import DoesNotExist, QuerySet
@@ -146,6 +147,74 @@ class ErrorInstance(Document):
     def from_raw(cls, raw):
         return cls(**raw)
 
+    @classmethod
+    def get_occurrence(cls, error_hash, granularity, window):
+        """
+        Get occurrence counts, grouped by the granularity in seconds, that
+        that occurred no more than window seconds in the past.
+        """
+
+        now = time()
+        earliest = now - window
+
+        map_func = Code("""
+        function() {
+            var now = %d;
+            var earliest = %d;
+            var granularity = %d;
+
+            function getPeriod(instance) {
+                var
+                    period = earliest,
+                    prevPeriod = 0;
+
+                while (period <= now ) {
+                    if (instance.timestamp >= prevPeriod && instance.timestamp < period) {
+                        return period;
+                    }
+
+                    prevPeriod = period;
+                    period += granularity;
+                }
+            }
+
+            function getKey(period) {
+                return key = "occurences:" + granularity + ":" + period;
+            }
+
+            var period = getPeriod(this);
+
+            emit(getKey(period), {hash: this.hash, count: 0, timestamp: period});
+        }
+""" % (now, earliest, granularity))
+
+        reduce_func = Code("""
+        function(key, instances) {
+            var result = instances.pop();
+            var count = 0;
+            for (instance in instances) {
+                count++;
+            }
+
+            result.count = count;
+
+            return result;
+        }
+""")
+
+        instances = cls.objects(hash=error_hash, timestamp__gt=earliest).order_by('timestamp').map_reduce(map_func, reduce_func, 'inline')
+
+        occurences = []
+
+        try:
+            while True:
+                instance = instances.next()
+                occurences.append(instance.value)
+        except StopIteration:
+            pass
+
+        return occurences
+
 
 class ErrorQuerySet(QuerySet):
 
@@ -163,7 +232,6 @@ class ErrorQuerySet(QuerySet):
 
     def active(self):
         return self.filter(hiddenby__exists=False)
-
 
 keyword_re = re.compile(r'\w+')
 
@@ -306,6 +374,22 @@ class Error(Document):
         self.count = self.count + 1
         self.hiddenby = None
 
+        self.instances.append(instance)
+
+    def get_hourly_occurrence(self, window=24*3600):
+        return ErrorInstance.get_occurrence(self.hash, 3600, window)
+
+    def get_daily_occurrence(self, window=7*24*3600):
+        return ErrorInstance.get_occurrence(self.hash, 24*3600, window)
+
+    def get_weekly_occurrence(self, window=26*7*24*3600):
+        return ErrorInstance.get_occurrence(self.hash, 7*24*3600, window)
+
+
+    @property
+    def timefirst(self):
+        return self.instances[0]['timecreated']
+
     def get_row_classes(self, user):
         classes = []
         user not in self.seenby and classes.append('unseen')
@@ -313,50 +397,3 @@ class Error(Document):
         self.hiddenby and classes.append('hidden')
         self.claimedby == user and classes.append('mine')
         return ' '.join(classes)
-
-    def get_occurrence(self, granularity, window):
-        """
-        Get occurrence counts, grouped by the granularity in seconds, that
-        that occurred no more than window seconds in the past.
-        """
-        raise Exception("needs updating to new model")
-        earliest = time.time() - window
-        grouping, = self._collection.group(
-                    [],
-                    {'_id': self._id},
-                    {'by_time': {}},
-                    """
-        function(obj, prev) {
-            var is = obj.instances;
-            var by_time = prev.by_time;
-            for (var i = 0; i < is.length; i++) {
-                ts = is[i].timecreated;
-                ts_norm = ts - ts %% 3600;
-                if (ts_norm > %d) {
-                    by_time[ts_norm] = (by_time.hasOwnProperty(ts_norm) ? by_time[ts_norm] + 1 : 1);
-                }
-            }
-        }
-        """ % earliest,
-        )
-        by_time = grouping['by_time']
-        by_time = {int(k): int(v) for (k, v) in by_time.iteritems()}
-
-        # pad out zeros in values
-        now = int(time())
-        now = now - now % granularity
-        t = now
-        while t > now - window:
-            by_time.setdefault(t, 0)
-            t -= granularity
-
-        return sorted(by_time.items())
-
-    def get_hourly_occurrence(self, window=3*24*3600):
-        return self.get_occurrence(3600, window)
-
-    def get_daily_occurrence(self, window=28*24*3600):
-        return self.get_occurrence(24*3600, window)
-
-    def get_weekly_occurrence(self, window=26*7*24*3600):
-        return self.get_occurrence(7*24*3600, window)
