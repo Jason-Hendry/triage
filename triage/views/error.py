@@ -85,13 +85,13 @@ def error_graph(request):
 
     error_id = request.matchdict['id']
     try:
-        error = Error.objects(project=selected_project['id']).with_id(error_id)
+        error = selected_project.errors().get(id=error_id)
     except:
         return HTTPNotFound()
 
     return {
-        'hourly_occurences':  error.get_hourly_occurrence(),
-        'daily_occurences': error.get_daily_occurrence(),
+        'hourly_occurences':  error.get_hourly_occurrences(),
+        'daily_occurences': error.get_daily_occurrences(),
         'error': error,
         'selected_project': selected_project,
         'available_projects': available_projects

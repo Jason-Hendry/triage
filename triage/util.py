@@ -1,6 +1,8 @@
 from math import ceil
-
+from furl import furl
 from datetime import tzinfo, timedelta, datetime
+
+
 class FixedTimezone(tzinfo):
     """Fixed offset in minutes east from UTC."""
 
@@ -17,9 +19,6 @@ class FixedTimezone(tzinfo):
     def dst(self, dt):
         return timedelta(0)
 
-
-
-from furl import furl
 
 class GithubLinker():
     def __init__(self, project_path, default_branch=None):
@@ -50,7 +49,6 @@ class GithubLinker():
 
     def to_diff(self, from_ref, to_ref):
         return self.furl().add(path='compare/'+ str(from_ref) + '...' + str(to_ref)).url
-
 
 
 class Paginator:

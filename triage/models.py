@@ -7,6 +7,9 @@ except:
 
 from pymongo.code import Code
 from time import time
+import time as _time
+import datetime
+from math import floor
 from mongoengine import *
 from mongoengine.queryset import DoesNotExist, QuerySet
 from passlib.apps import custom_app_context as pwd_context
@@ -179,7 +182,7 @@ class ErrorInstance(Document):
             }
 
             function getKey(period) {
-                return key = "occurences:" + granularity + ":" + period;
+                return key = "occurrences:" + granularity + ":" + period;
             }
 
             var period = getPeriod(this);
@@ -204,16 +207,16 @@ class ErrorInstance(Document):
 
         instances = cls.objects(hash=error_hash, timestamp__gt=earliest).order_by('timestamp').map_reduce(map_func, reduce_func, 'inline')
 
-        occurences = []
+        occurrences = []
 
         try:
             while True:
                 instance = instances.next()
-                occurences.append(instance.value)
+                occurrences.append(instance.value)
         except StopIteration:
             pass
 
-        return occurences
+        return occurrences
 
 
 class ErrorQuerySet(QuerySet):
@@ -234,7 +237,6 @@ class ErrorQuerySet(QuerySet):
         return self.filter(hiddenby__exists=False)
 
 keyword_re = re.compile(r'\w+')
-
 
 class Error(Document):
     meta = {
@@ -376,15 +378,14 @@ class Error(Document):
 
         self.instances.append(instance)
 
-    def get_hourly_occurrence(self, window=24*3600):
-        return ErrorInstance.get_occurrence(self.hash, 3600, window)
+    def get_hourly_occurrences(self, window=12 * 3600):
+        return HourlyOccurrences.get_occurrences(self.hash, 3600, window)
 
-    def get_daily_occurrence(self, window=7*24*3600):
-        return ErrorInstance.get_occurrence(self.hash, 24*3600, window)
+    def get_daily_occurrences(self, window=7 * 24 * 3600):
+        return HourlyOccurrences.get_occurrences(self.hash, 24 * 3600, window)
 
-    def get_weekly_occurrence(self, window=26*7*24*3600):
-        return ErrorInstance.get_occurrence(self.hash, 7*24*3600, window)
-
+    def get_weekly_occurrences(self, window=26 * 7 * 24 * 3600):
+        return HourlyOccurrences.get_occurrences(self.hash, 7 * 24 * 3600, window)
 
     @property
     def timefirst(self):
@@ -397,3 +398,61 @@ class Error(Document):
         self.hiddenby and classes.append('hidden')
         self.claimedby == user and classes.append('mine')
         return ' '.join(classes)
+
+
+class HourlyOccurrences(Document):
+    meta = {
+        'indexes': ['hash', 'key']
+    }
+
+    hash = StringField(required=True)
+    key = StringField(required=True, unique=True)
+    timestamp = FloatField()
+    count = IntField()
+
+    @classmethod
+    def get_occurrences(cls, hash, granularity, window):
+        def get_date(prev_occurrence):
+            date_keys = prev_occurrence.key.split('-')
+            print date_keys
+            return datetime.datetime(year=int(date_keys[0]), month=int(date_keys[1]), day=int(date_keys[2]), hour=int(date_keys[3]))
+
+        def populate_empty_occurrences(earliest, window, granularity):
+            diff = floor(window / granularity)
+            result = []
+            for internval in xrange(0, int(diff)):
+                result.append({
+                    "timestamp": earliest + diff * 60 * 60,
+                    "count": 0
+                })
+            return result
+
+        now = time()
+        earliest = now - window
+
+        try:
+            occurrences = cls.objects(hash=hash, timestamp__gt=earliest)
+        except DoesNotExist:
+            return []
+
+        result = []
+
+        if not occurrences:
+            return populate_empty_occurrences(earliest, window, granularity)
+
+        prev_occurrence = {}
+
+        for occurrence in occurrences:
+            if (prev_occurrence):
+                prev_date = get_date(prev_occurrence)
+                current_date = get_date(occurrence)
+                delta = current_date - prev_date
+                result = result + populate_empty_occurrences(delta.seconds, window, granularity)
+
+            result.append(occurrence)
+            prev_occurrence = occurrence
+        # else:
+
+        #     result = result + populate_empty_occurrences(delta.seconds, window, granularity)
+
+        return result

@@ -1,6 +1,6 @@
 from jinja2 import evalcontextfilter, Markup
 import datetime
-
+import time
 @evalcontextfilter
 def github_link(eval_ctx, value):
     if 'file' in value:
@@ -36,11 +36,10 @@ def relative_date(eval_ctx, timestamp):
         elif s < 120:
             return '1 min ago'
         elif s < 3600:
-            return '{} mins ago'.format(s/60)
+            return '{} mins ago'.format(s / 60)
         elif s < 7200:
             return '1 hr ago'
         else:
-            return '{} hrs ago'.format(s/3600)
-
-    date = datetime.datetime.fromtimestamp(timestamp)
-    return prettydate(date)
+            return '{} hrs ago'.format(s / 3600)
+    return timestamp
+    return prettydate(timestamp)
