@@ -20,15 +20,18 @@ def github_link(eval_ctx, value):
 
 @evalcontextfilter
 def relative_date(eval_ctx, timestamp):
+    # return timestamp
     def prettydate(d):
-        diff = datetime.datetime.now() - d
+        now = datetime.datetime(year=2012, month=6, day=29)
+        WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+        diff = now - d
         s = diff.seconds
         if diff.days > 7 or diff.days < 0:
             return d.strftime('%d %b %y')
-        elif diff.days == 1:
-            return '1 day ago'
-        elif diff.days > 1:
-            return '{} days ago'.format(diff.days)
+        elif diff.days >= 1:
+            return d.strftime('%d %b %y')
+            # return WEEKDAYS[d.weekday()]
         elif s <= 1:
             return 'just now'
         elif s < 60:
@@ -41,5 +44,5 @@ def relative_date(eval_ctx, timestamp):
             return '1 hr ago'
         else:
             return '{} hrs ago'.format(s / 3600)
-    return timestamp
-    return prettydate(timestamp)
+    d = datetime.datetime.fromtimestamp(timestamp)
+    return prettydate(d)
