@@ -1,0 +1,5 @@
+<span class="inlinesparkline">
+	{% for o in error.get_hourly_occurrences() %}
+	{{ o.count }},
+	{% endfor %}
+</span>

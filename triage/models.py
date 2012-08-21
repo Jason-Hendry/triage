@@ -9,6 +9,7 @@ from pymongo.code import Code
 from time import time
 import time as _time
 import datetime
+from datetime import timedelta
 from math import floor
 from mongoengine import *
 from mongoengine.queryset import DoesNotExist, QuerySet
@@ -270,7 +271,7 @@ class Error(Document):
     @classmethod
     def validate_and_upsert(cls, msg):
         msg['timelatest'] = msg['timestamp']
-
+        print msg
         error = cls.create_from_msg(msg)
         error.validate()
 
@@ -378,14 +379,14 @@ class Error(Document):
 
         self.instances.append(instance)
 
-    def get_hourly_occurrences(self, window=12 * 3600):
-        return HourlyOccurrences.get_occurrences(self.hash, 3600, window)
+    def get_hourly_occurrences(self, window=12):
+        return HourlyOccurrences.get_occurrences(self.hash, 1, window)
 
-    def get_daily_occurrences(self, window=7 * 24 * 3600):
-        return HourlyOccurrences.get_occurrences(self.hash, 24 * 3600, window)
+    def get_daily_occurrences(self, window=7 * 24):
+        return HourlyOccurrences.get_occurrences(self.hash, 24, window)
 
-    def get_weekly_occurrences(self, window=26 * 7 * 24 * 3600):
-        return HourlyOccurrences.get_occurrences(self.hash, 7 * 24 * 3600, window)
+    def get_weekly_occurrences(self, window=26 * 7 * 24):
+        return HourlyOccurrences.get_occurrences(self.hash, 7 * 24, window)
 
     @property
     def timefirst(self):
@@ -414,45 +415,63 @@ class HourlyOccurrences(Document):
     def get_occurrences(cls, hash, granularity, window):
         def get_date(prev_occurrence):
             date_keys = prev_occurrence.key.split('-')
-            print date_keys
             return datetime.datetime(year=int(date_keys[0]), month=int(date_keys[1]), day=int(date_keys[2]), hour=int(date_keys[3]))
 
-        def populate_empty_occurrences(earliest, window, granularity):
-            diff = floor(window / granularity)
+        def timestamp(datetime, granularity):
+            timestamp = datetime.year, "-", datetime.month, "-", datetime.day
+            return _time.mktime(datetime.timetuple())
+            if granularity == 1:
+                return timestamp, "-", datetime.hour
+            else:
+                return timestamp
+
+        def to_list(queryset):
+            record_list = []
+
+            for record in queryset:
+                record_list.append(record)
+            return record_list
+
+        def populate_occurrences(occurrences, granularity, earliest, now):
+            def to_datetime(occurrence):
+                arr = occurrence.key.split("-")
+                return datetime.datetime(year=int(arr[0]), month=int(arr[1]) + 1, day=int(arr[2]), hour=int(arr[3]))
+
             result = []
-            for internval in xrange(0, int(diff)):
-                result.append({
-                    "timestamp": earliest + diff * 60 * 60,
-                    "count": 0
-                })
+            step = earliest
+            while step <= now:
+                granular_occurrence = {"timestamp": timestamp(step, granularity), "count": 0}
+                if len(occurrences):
+                    for occurrence in occurrences:
+                        d = to_datetime(occurrence)
+                        print occurrence
+                        print d
+                        if d < step:
+                            granular_occurrence['count'] += occurrence.count
+                            occurrences.remove(occurrence)
+                        else:
+                            break
+                result.append(granular_occurrence)
+                step += timedelta(hours=granularity)
             return result
 
-        now = time()
-        earliest = now - window
+        now = datetime.datetime(year=2012, month=6, day=29)
+        earliest = now - timedelta(hours=window)
 
         try:
-            occurrences = cls.objects(hash=hash, timestamp__gt=earliest)
+            occurrences = to_list(
+                cls.objects(hash=hash, timestamp__gt=_time.mktime(earliest.timetuple())).order_by("timestamp")
+            )
         except DoesNotExist:
             return []
 
-        result = []
+        for o in occurrences:
+            print o.key, ' ', o.count, ' ', o.timestamp
+        print '..'
 
-        if not occurrences:
-            return populate_empty_occurrences(earliest, window, granularity)
+        result = populate_occurrences(occurrences, granularity, earliest, now)
 
-        prev_occurrence = {}
-
-        for occurrence in occurrences:
-            if (prev_occurrence):
-                prev_date = get_date(prev_occurrence)
-                current_date = get_date(occurrence)
-                delta = current_date - prev_date
-                result = result + populate_empty_occurrences(delta.seconds, window, granularity)
-
-            result.append(occurrence)
-            prev_occurrence = occurrence
-        # else:
-
-        #     result = result + populate_empty_occurrences(delta.seconds, window, granularity)
+        for o in result:
+            print o['count'], ' ', datetime.datetime.fromtimestamp(o['timestamp'])
 
         return result

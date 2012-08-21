@@ -76,10 +76,10 @@
 
 	    hourlyGraph.categories = getPeriods($hourlyOccurences);
 	    hourlyGraph.occurences = getOccurences($hourlyOccurences);
-		hourlyGraph.render('Hourly frequency chart', 600, 200);
+		hourlyGraph.render('Hourly frequency chart', 1200, 200);
 
 	    dailyGraph.categories = getPeriods($dailyOccurences);
 	    dailyGraph.occurences = getOccurences($dailyOccurences);
-		dailyGraph.render('daily frequency chart', 600, 200);
+		dailyGraph.render('daily frequency chart', 1200, 200);
 	});
 })(jQuery);
