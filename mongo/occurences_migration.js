@@ -5,14 +5,17 @@ db.createCollection(name);
 db[name].ensureIndex({key: 1}, {unique: true});
 db[name].ensureIndex({hash: 1});
 
-function create_or_update(instance) {
-	function getKey(instance) {
+function createOrUpdate(instance) {
+	function getUTC(instance) {
 		var d = new Date(instance.timestamp * 1000);
-		return d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "-" + d.getUTCHours();
+		return {
+			key: d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "-" + d.getUTCHours(),
+			timestamp: Math.floor(d.getTime()/ 1000)
+		};
 	}
 
-	var key = getKey(instance);
-	var occurrence = db[name].findOne({key: key, hash: instance.hash});
+	var utc = getUTC(instance);
+	var occurrence = db[name].findOne({key: utc.key, hash: instance.hash});
 
 	if (occurrence) {
 		occurrence.count++;
@@ -22,8 +25,8 @@ function create_or_update(instance) {
 			_types: [ "HourlyOccurrences" ],
 			_cls: "HourlyOccurrences",
 			hash: instance.hash,
-			key: key,
-			timestamp: instance.timestamp,
+			key: utc.key,
+			timestamp: utc.timestamp,
 			count: 1
 		});
 	}
@@ -32,5 +35,5 @@ function create_or_update(instance) {
 var instances = db.error_instance.find().sort({timestamp: 0});
 
 for (var i = 0; i < instances.count(); i++) {
-	create_or_update(instances[i]);
+	createOrUpdate(instances[i]);
 }
