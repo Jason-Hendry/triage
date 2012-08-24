@@ -13,6 +13,10 @@ Triage.modules.sparkleline = (function($, app) {
 					fillColor: "pink"
 				});
 			}
+
+			$line.on('click', function(e) {
+				e.stopPropagation();
+			});
 		});
 	}
 
