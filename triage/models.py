@@ -418,9 +418,8 @@ class HourlyOccurrences(Document):
             return result
 
         now = datetime.datetime.utcnow()
-
         earliest = now - timedelta(hours=window)
-        e_timestamp = time.mktime(earliest.timetuple())
+        e_timestamp = datetime_to_timestamp(earliest)
 
         try:
             occurrences = to_list(
