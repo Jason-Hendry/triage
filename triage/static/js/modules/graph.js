@@ -94,7 +94,7 @@
 		return $occurrences.map(function() { return parseInt($(this).text(), 10); });
 	}
 
-	function renderChart($container, title, type) {
+	function renderGraph($container, title, type) {
 		var
 			$occurrences = $container.find('.' + type + ' .occurrence'),
 			graph = new Graph('graph-display-' + type)
@@ -107,7 +107,7 @@
 
 	$(function() {
 		var $graph = $('.graph');
-		renderChart($graph, 'Hourly frequency chart', 'hour');
-		renderChart($graph, 'Daily frequency chart', 'day');
+		renderGraph($graph, 'Hourly frequency graph', 'hour');
+		renderGraph($graph, 'Daily frequency graph', 'day');
 	});
 })(jQuery, moment, Highcharts);
