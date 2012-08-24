@@ -34,8 +34,6 @@
 		<script src="/static/js/jquery-cookie.min.js"></script>
 		<script src="/static/js/jquery-jwerty.min.js"></script>
 		<script src="/static/js/bootstrap.js"></script>
-		<script src="http://code.highcharts.com/highcharts.js"></script>
-		<script src="http://code.highcharts.com/modules/exporting.js"></script>
 
 		<!-- scripts concatenated and minified via ant build script-->
 		<script src="/static/js/application.js"></script>
@@ -44,6 +42,7 @@
 		<script src="/static/js/modules/pane.js"></script>
 		<script src="/static/js/modules/error-nav.js"></script>
 		<script src="/static/js/modules/error-list.js"></script>
+		<script src="/static/js/modules/sparkline.js"></script>
 		<script src="/static/js/modules/loader.js"></script>
 		<script src="/static/js/modules/fluid.js"></script>
 		<script type="text/javascript">
@@ -53,6 +52,7 @@
 			Triage.app.start();
 
 		</script>
+
 		<!-- end scripts-->
 
 		<!--[if lt IE 7 ]>
@@ -63,6 +63,7 @@
 
 		<div class="page-loader">Loading...</div>
 
+		{% block footer %}{% endblock %}
 	</body>
 
 </html>

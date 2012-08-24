@@ -3,23 +3,26 @@
 <div id="information">
 	<h2>{{error.message}}</h2>
 	<div class="graph">
-		<ul class="occurences hourly">
-			{% for o in hourly_occurences %}
-			<li class="occurence" data-period="{{o.timestamp|relative_date}}" >{{o.count}}</li>
+		<ul class="occurrences hour">
+			{% for o in hourly_occurrences %}
+			<li class="occurrence" data-period="{{o.timestamp}}" >{{o.count}}</li>
 			{% endfor %}
 		</ul>
-		<ul class="occurences daily">
-			{% for o in daily_occurences %}
-			<li class="occurence" data-period="{{o.timestamp|relative_date}}" >{{o.count}}</li>
+		<ul class="occurrences day">
+			{% for o in daily_occurrences %}
+			<li class="occurrence" data-period="{{o.timestamp}}" >{{o.count}}</li>
 			{% endfor %}
 		</ul>
-		<div id="graph-display-daily"></div>
-		<div id="graph-display-hourly"></div>
+		<div id="graph-display-hour"></div>
+		<div id="graph-display-day"></div>
 	</div>
 
 	<a href="{{route_url('error_list', project=selected_project.id)}}">back</a>
 </div>
 {% endblock %}
 {% block footer %}
-<script src="/static/js/modules/highchart.js" async="true"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script src="/static/js/moment.js"></script>
+<script src="/static/js/modules/chart.js"></script>
 {% endblock %}

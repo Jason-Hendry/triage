@@ -111,7 +111,6 @@ Triage.modules.errorList = (function($, app) {
 			app.on('pane.tag.remove', function(tag) {
 				$('.error-list tr.error-active .error .detail-tags .label-' + tag).fadeOut(function () { $(this).remove(); });
 			});
-			$('.inlinesparkline').sparkline();
 		},
 		stop: function() { },
 		currentHash: null

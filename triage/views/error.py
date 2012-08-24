@@ -90,8 +90,8 @@ def error_graph(request):
         return HTTPNotFound()
 
     return {
-        'hourly_occurences': error.get_hourly_occurrences(),
-        'daily_occurences': error.get_daily_occurrences(),
+        'hourly_occurrences': error.get_hourly_occurrences(),
+        'daily_occurrences': error.get_daily_occurrences(),
         'error': error,
         'selected_project': selected_project,
         'available_projects': available_projects

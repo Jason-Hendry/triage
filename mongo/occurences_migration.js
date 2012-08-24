@@ -9,7 +9,7 @@ function createOrUpdate(instance) {
 	function getUTC(instance) {
 		var d = new Date(instance.timestamp * 1000);
 		return {
-			key: d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "-" + d.getUTCHours(),
+			key: d.getUTCFullYear() + "-" + (d.getUTCMonth() + 1) + "-" + d.getUTCDate() + "-" + d.getUTCHours(),
 			timestamp: Math.floor(d.getTime()/ 1000)
 		};
 	}
@@ -26,6 +26,7 @@ function createOrUpdate(instance) {
 			_cls: "HourlyOccurrences",
 			hash: instance.hash,
 			key: utc.key,
+			project: instance.project,
 			timestamp: utc.timestamp,
 			count: 1
 		});

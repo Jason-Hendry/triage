@@ -4,7 +4,7 @@ import mongoengine
 import logging
 from sys import argv
 from pyramid.paster import get_appsettings
-from models import Error, ErrorHasher, ErrorInstance
+from models import Error, ErrorHasher, ErrorInstance, HourlyOccurrences
 
 #logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
@@ -51,6 +51,8 @@ while True:
                 logging.debug('saved error')
 
                 ErrorInstance.from_raw(msg).save(safe=False)
+                HourlyOccurrences.from_msg(msg)
+
                 logging.debug('saved instance')
 
     except Exception, a:
