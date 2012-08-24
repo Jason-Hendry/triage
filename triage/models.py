@@ -5,12 +5,9 @@ try:
 except:
     from md5 import new as md5
 
-from pymongo.code import Code
-from time import time
-import time as _time
+import time
 import datetime
 from datetime import timedelta
-from math import floor
 from mongoengine import *
 from mongoengine.queryset import DoesNotExist, QuerySet
 from passlib.apps import custom_app_context as pwd_context
@@ -423,7 +420,7 @@ class HourlyOccurrences(Document):
         now = datetime.datetime.utcnow()
 
         earliest = now - timedelta(hours=window)
-        e_timestamp = _time.mktime(earliest.timetuple())
+        e_timestamp = time.mktime(earliest.timetuple())
 
         try:
             occurrences = to_list(
