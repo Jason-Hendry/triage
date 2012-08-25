@@ -370,21 +370,16 @@ class HourlyOccurrences(Document):
 
     @classmethod
     def get_occurrences(cls, hash, granularity, window):
-        def utc_mktime(utc_tuple):
-            """Returns number of seconds elapsed since epoch
-
-            Note that no timezone are taken into consideration.
-
-            utc tuple must be: (year, month, day, hour, minute, second)
-
-            """
-
-            if len(utc_tuple) == 6:
-                utc_tuple += (0, 0, 0)
-            return time.mktime(utc_tuple) - time.mktime((1970, 1, 1, 0, 0, 0, 0, 0, 0))
-
-        def datetime_to_timestamp(dt):
-            """Converts a datetime object to UTC timestamp"""
+        def to_utctimestamp(dt):
+            def utc_mktime(utc_tuple):
+                """
+                Returns number of seconds elapsed since epoch
+                Note that no timezone are taken into consideration.
+                utc tuple must be: (year, month, day, hour, minute, second)
+                """
+                if len(utc_tuple) == 6:
+                    utc_tuple += (0, 0, 0)
+                return time.mktime(utc_tuple) - time.mktime((1970, 1, 1, 0, 0, 0, 0, 0, 0))
 
             return int(utc_mktime(dt.timetuple()))
 
@@ -402,7 +397,7 @@ class HourlyOccurrences(Document):
             temp_occurrences = list(occurrences)
 
             while step <= now:
-                granular_occurrence = {"timestamp": datetime_to_timestamp(step), "count": 0}
+                granular_occurrence = {"timestamp": to_utctimestamp(step), "count": 0}
 
                 if occurrences:
                     for occurrence in occurrences:
@@ -419,11 +414,10 @@ class HourlyOccurrences(Document):
 
         now = datetime.datetime.utcnow()
         earliest = now - timedelta(hours=window)
-        e_timestamp = datetime_to_timestamp(earliest)
 
         try:
             occurrences = to_list(
-                cls.objects(hash=hash, timestamp__gt=e_timestamp).order_by("timestamp")
+                cls.objects(hash=hash, timestamp__gt=to_utctimestamp(earliest)).order_by("timestamp")
             )
         except DoesNotExist:
             return []
