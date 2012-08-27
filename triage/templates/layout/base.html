@@ -30,7 +30,7 @@
 		{% block scripts %}
 		<script src="/static/js/jquery-1.7.1.min.js"></script>
 		<script src="/static/js/jquery-ui-1.8.12.min.js"></script>
-		<script src="http://www.omnipotent.net/jquery.sparkline/2.0/jquery.sparkline.min.js"></script>
+		<script src="/static/js/jquery-sparkline.min.js"></script>
 		<script src="/static/js/jquery-cookie.min.js"></script>
 		<script src="/static/js/jquery-jwerty.min.js"></script>
 		<script src="/static/js/bootstrap.js"></script>
@@ -45,6 +45,7 @@
 		<script src="/static/js/modules/sparkline.js"></script>
 		<script src="/static/js/modules/loader.js"></script>
 		<script src="/static/js/modules/fluid.js"></script>
+		{% block script %}{% endblock %}
 		<script type="text/javascript">
 
 			var Triage = Triage || {};
@@ -62,8 +63,6 @@
 		{% endblock %}
 
 		<div class="page-loader">Loading...</div>
-
-		{% block footer %}{% endblock %}
 	</body>
 
 </html>

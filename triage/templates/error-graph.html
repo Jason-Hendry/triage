@@ -20,9 +20,8 @@
 	<a href="{{route_url('error_list', project=selected_project.name)}}">back</a>
 </div>
 {% endblock %}
-{% block footer %}
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="http://code.highcharts.com/modules/exporting.js"></script>
+{% block script%}
+<script src="/static/js/highcharts.js"></script>
 <script src="/static/js/moment.js"></script>
 <script src="/static/js/modules/graph.js"></script>
 {% endblock %}
