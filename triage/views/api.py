@@ -1,7 +1,8 @@
 from pyramid.view import view_config
 import base64
 import json
-from triage.models import Error, Project, ProjectVersion
+from triage.models.project import Project
+from triage.models.project_version import ProjectVersion
 from time import time
 
 @view_config(route_name='api_log', renderer='string')
@@ -11,8 +12,19 @@ def log(request):
         msg = json.loads(base64.b64decode(get_params['data']))
         msg = _format_backtrace(msg)
 
-        error = Error.create_from_msg(msg)
-        error.save()
+        print msg
+        # msg['hash'] = ErrorHasher(msg).get_hash()
+        # if 'timestamp' not in msg:
+        #     msg['timestamp'] = int(time())
+
+        # Error.validate_and_upsert(msg)
+        # logging.debug('saved error')
+
+        # ErrorInstance.from_raw(msg).save(safe=False)
+        # HourlyOccurrences.from_msg(msg)
+
+        # error = Error.create_from_msg(msg)
+        # error.save()
     except:
         return {'success': False}
 

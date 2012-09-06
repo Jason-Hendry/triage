@@ -2,7 +2,11 @@ from pyramid.view import view_config
 from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 
-from triage.models import Error, Comment, Tag, ErrorInstance, Project
+from triage.models.error import Error
+from triage.models.comment import Comment
+from triage.models.tag import Tag
+from triage.models.error_instance import ErrorInstance
+from triage.models.project import Project
 from triage.util import GithubLinker
 from time import time
 from os import path
