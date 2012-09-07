@@ -1,18 +1,15 @@
 from mongoengine import *
-from triage.util import create_from_msg
+from triage.models.base_occurrence import BaseOccurrence
 
 
-class DailyOccurrence(Document):
+class DailyOccurrence(Document, BaseOccurrence):
     meta = {
-        'indexs': ['hash']
+        'indexes': ['hash', 'project', 'key']
     }
 
     hash = StringField(required=True)
-    key = StringField(required=True, unique=True)
+    key = StringField(required=True)
+    project = StringField(required=True)
     timestamp = FloatField()
     count = IntField()
-
-    def from_msg(cls, msg):
-        def generator(d):
-            return '{0}-{1}-{2}'.format(d.year, d.month, d.day)
-        create_from_msg(cls, msg, generator)
+    granularity = 'days'

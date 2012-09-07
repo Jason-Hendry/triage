@@ -1,5 +1,9 @@
 from mongoengine import *
 import re
+try:
+    from hashlib import md5
+except:
+    from md5 import new as md5
 
 
 class ErrorHasher:

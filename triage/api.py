@@ -5,9 +5,10 @@ import logging
 from sys import argv
 from pyramid.paster import get_appsettings
 from models.error import Error
-from models.error_hash import ErrorHasher
+from models.error_hasher import ErrorHasher
 from models.error_instance import ErrorInstance
 from models.hourly_occurrence import HourlyOccurrence
+from models.daily_occurrence import DailyOccurrence
 
 #logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
@@ -55,6 +56,7 @@ while True:
 
                 ErrorInstance.from_raw(msg).save(safe=False)
                 HourlyOccurrence.from_msg(msg)
+                DailyOccurrence.from_msg(msg)
 
                 logging.debug('saved instance')
 

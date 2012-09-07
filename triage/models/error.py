@@ -167,10 +167,10 @@ class Error(Document):
         self.hiddenby = None
 
     def get_hourly_occurrences(self, window=12):
-        return HourlyOccurrence.get_occurrences(self.hash, 1, window)
+        return HourlyOccurrence.get_occurrences(self.hash, window)
 
-    def get_daily_occurrences(self, window=7 * 24):
-        return HourlyOccurrence.get_occurrences(self.hash, 24, window)
+    def get_daily_occurrences(self, window=7):
+        return DailyOccurrence.get_occurrences(self.hash, window)
 
     @property
     def timefirst(self):

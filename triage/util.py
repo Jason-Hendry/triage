@@ -1,7 +1,6 @@
 from math import ceil
 from furl import furl
-from datetime import tzinfo, timedelta, datetime
-import time
+from datetime import tzinfo, timedelta
 
 
 class FixedTimezone(tzinfo):
@@ -88,51 +87,3 @@ class Paginator:
 
     def get_current_page_number(self):
         return self.current_page
-
-
-def create_from_msg(cls, msg, key_generator):
-    d = datetime.utcfromtimestamp(msg['timestamp'])
-    key = key_generator(d)
-
-    occurrence = {
-        'hash': msg['hash'],
-        'project': msg['project'],
-        'key': key,
-        'count': 1,
-        'timestamp': msg['timestamp']
-    }
-
-    update_occurrence = {
-        '$set': {
-            'hash': msg['hash'],
-            'project': msg['project'],
-            'key': key,
-            'timestamp': msg['timestamp']
-        },
-        '$inc': {
-            'count': 1
-        }
-    }
-
-    result = cls.objects._collection.update({
-        'key': key,
-        'hash': msg['hash']
-    }, update_occurrence, safe_update=True)
-
-    if not result['updatedExisting']:
-        occurrence = cls(**occurrence)
-        occurrence.save()
-
-
-def to_utctimestamp(dt):
-    def utc_mktime(utc_tuple):
-        """
-        Returns number of seconds elapsed since epoch
-        Note that no timezone are taken into consideration.
-        utc tuple must be: (year, month, day, hour, minute, second)
-        """
-        if len(utc_tuple) == 6:
-            utc_tuple += (0, 0, 0)
-        return time.mktime(utc_tuple) - time.mktime((1970, 1, 1, 0, 0, 0, 0, 0, 0))
-
-    return int(utc_mktime(dt.timetuple()))
