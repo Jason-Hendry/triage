@@ -62,6 +62,7 @@ Triage.modules.errorNav = (function($, app) {
 				button.attr('disabled', false);
 				$('.error-list tbody').append(data);
 				rowsLoaded = $('.error-list tbody tr').length;
+				app.trigger('nextpage.loaded');
 			}
 		});
 	};

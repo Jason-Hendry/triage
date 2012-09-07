@@ -2,12 +2,16 @@ from pyramid.view import view_config
 from pyramid.renderers import render_to_response
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 
-from triage.models import Error, Comment, Tag, ErrorInstance, Project
+from triage.models.error import Error
+from triage.models.comment import Comment
+from triage.models.tag import Tag
+from triage.models.error_instance import ErrorInstance
+from triage.models.project import Project
 from triage.util import GithubLinker
 from time import time
 from os import path
-
-import logging
+import datetime
+import logging, random
 
 
 def get_errors(request, fetch_recent=False):
@@ -75,6 +79,26 @@ def error_list(request):
         'selected_project': get_selected_project(request),
         'errors': get_errors(request),
         'basename': path.basename
+    }
+
+
+@view_config(route_name='error_graph', permission='authenticated', renderer='error-graph.html')
+def error_graph(request):
+    available_projects = request.registry.settings['projects']
+    selected_project = get_selected_project(request)
+
+    error_id = request.matchdict['id']
+    try:
+        error = selected_project.errors().get(id=error_id)
+    except:
+        return HTTPNotFound()
+
+    return {
+        'hourly_occurrences': error.get_hourly_occurrences(),
+        'daily_occurrences': error.get_daily_occurrences(),
+        'error': error,
+        'selected_project': selected_project,
+        'available_projects': available_projects
     }
 
 

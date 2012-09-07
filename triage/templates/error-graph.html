@@ -1,0 +1,27 @@
+{% extends "layout/fluid.html" %}
+{% block content %}
+<div id="information">
+	<h2>{{error.message}}</h2>
+	<div class="graph">
+		<ul class="occurrences hour">
+			{% for o in hourly_occurrences %}
+			<li class="occurrence" data-period="{{o.timestamp}}" >{{o.count}}</li>
+			{% endfor %}
+		</ul>
+		<ul class="occurrences day">
+			{% for o in daily_occurrences %}
+			<li class="occurrence" data-period="{{o.timestamp}}" >{{o.count}}</li>
+			{% endfor %}
+		</ul>
+		<div id="graph-display-hour"></div>
+		<div id="graph-display-day"></div>
+	</div>
+
+	<a href="{{route_url('error_list', project=selected_project.name)}}">back</a>
+</div>
+{% endblock %}
+{% block script%}
+<script src="/static/js/highcharts.js"></script>
+<script src="/static/js/moment.js"></script>
+<script src="/static/js/modules/graph.js"></script>
+{% endblock %}

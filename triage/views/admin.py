@@ -6,7 +6,8 @@ from triage.forms import UserRegisterSchema, UserFormSchema, user_form_validator
 from deform import Form, ValidationFailure
 from pyramid.security import remember, forget
 from pyramid.security import authenticated_userid
-from triage.models import User, Project
+from triage.models.user import User
+from triage.models.project import Project
 from mongoengine.queryset import DoesNotExist
 from deform.widget import TextInputWidget
 from colander import Invalid

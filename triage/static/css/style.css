@@ -186,6 +186,10 @@ body {
 	table-layout: fixed;
 }
 
+.table tbody tr:hover td {
+	background-color: #EEEEEE;
+}
+
 .error-list tbody tr td {
 	cursor: pointer;
 }
@@ -200,10 +204,19 @@ body {
 	background-color: #FFFFFF;
 }
 
-.error-list div.error {
+.error-list td.error {
+	max-width: 700px;
+}
+
+.error-list .error {
 	overflow: hidden;
 	width: inherit;
 	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.error-list div.error {
+	display: inline;
 }
 
 #information a.error {
@@ -573,4 +586,14 @@ body {
 
 .users .created {
 	width: 100px;
+}
+
+.graph {
+	min-width: 400px;
+	height: 400px;
+	margin: 0 auto;
+}
+
+.graph .occurrences {
+	display: none;
 }

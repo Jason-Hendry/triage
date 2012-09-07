@@ -1,0 +1,5 @@
+<a class="sparkline" href="{{route_url('error_graph', project=selected_project.name, id=error.id)}}" target="_blank">
+	{% for o in error.get_hourly_occurrences() %}
+	{{ o.count }}{% if not loop.last %},{% endif %}
+	{% endfor %}
+</a>

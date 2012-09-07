@@ -3,6 +3,7 @@ def routes(config):
     config.add_route('index', '/')
     # Errors
     config.add_route('error_list', '/projects/{project}')
+    config.add_route('error_graph', '/projects/{project}/error/{id}/graph')
     config.add_route('error_list_changes', '/projects/{project}/changes')
     config.add_route('error_view', '/projects/{project}/error/{id}')
     config.add_route('error_toggle_claim', '/projects/{project}/error/{id}/toggle/claim')
