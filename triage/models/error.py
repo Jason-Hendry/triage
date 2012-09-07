@@ -172,10 +172,6 @@ class Error(Document):
     def get_daily_occurrences(self, window=7):
         return DailyOccurrence.get_occurrences(self.hash, window)
 
-    @property
-    def timefirst(self):
-        return self.instances[0]['timecreated']
-
     def get_row_classes(self, user):
         classes = []
         user not in self.seenby and classes.append('unseen')
