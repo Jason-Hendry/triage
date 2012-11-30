@@ -19,3 +19,13 @@ class Project(Document):
             project[field] = data[field]
 
         return project
+
+    @classmethod
+    def from_data(cls, data):
+        return cls(
+                name=data['name'],
+                token=data['token'],
+                path=data['path'],
+                github=data['github']
+            )
+

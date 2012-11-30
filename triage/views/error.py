@@ -73,6 +73,13 @@ def get_errors(request, fetch_recent=False):
     return list(pagedErrors)
 
 
+@view_config(route_name='error_projects', permission='authenticated', renderer='errors/projects.html')
+def error_projects(request):
+    return {
+        'projects': Project.objects(),
+        'basename': path.basename
+    }
+
 @view_config(route_name='error_list', permission='authenticated', xhr=True, renderer='errors/list.html')
 def error_list(request):
     return {

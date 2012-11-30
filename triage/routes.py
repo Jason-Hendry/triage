@@ -2,6 +2,7 @@ def routes(config):
     # Index
     config.add_route('index', '/')
     # Errors
+    config.add_route('error_projects', '/projects')
     config.add_route('error_list', '/projects/{project}')
     config.add_route('error_graph', '/projects/{project}/error/{id}/graph')
     config.add_route('error_list_changes', '/projects/{project}/changes')
@@ -24,5 +25,7 @@ def routes(config):
     config.add_route('admin_user_create', 'admin/users/{user}/create')
     config.add_route('admin_user_edit', 'admin/users/{user}/edit')
     config.add_route('admin_user_delete', 'admin/users/{user}/delete')
-    config.add_route('admin_project_edit', 'admin/projects/{project}')
     config.add_route('admin_project', 'admin/projects')
+    config.add_route('admin_project_create', 'admin/projects/{project}/create')
+    config.add_route('admin_project_edit', 'admin/projects/{project}/edit')
+    config.add_route('admin_project_delete', 'admin/projects/{project}/delete')
