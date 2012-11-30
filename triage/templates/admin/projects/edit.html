@@ -1,0 +1,13 @@
+{% extends "layout/fluid.html" %}
+
+{% block content %}
+
+<div id="information">
+        <h1><a href="{{route_url('admin_user')}}" title="users">Users</a> / Edit {{user.name}}</h1>
+        {% if form %}
+                {{ form }}
+        {% endif %}
+</div>
+
+{% endblock %}
+
