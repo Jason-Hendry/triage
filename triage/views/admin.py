@@ -6,7 +6,8 @@ from triage.forms import UserRegisterSchema, UserFormSchema, user_form_validator
 from deform import Form, ValidationFailure
 from pyramid.security import remember, forget
 from pyramid.security import authenticated_userid
-from triage.models import User, Project
+from triage.models.user import User
+from triage.models.project import Project
 from mongoengine.queryset import DoesNotExist
 from deform.widget import TextInputWidget
 from colander import Invalid
@@ -107,13 +108,43 @@ def admin_project(request):
         'projects': Project.objects()
     }
 
+@view_config(route_name='admin_project_create', permission='authenticated')
+def admin_project_create(request):
+    schema = ProjectFormSchema()
+    form = Form(schema, buttons=('submit',))
+    form_render = None
+
+    if 'submit' in request.POST:
+        controls = request.POST.items()
+        try:
+            values = form.validate(controls)
+            project = Project.from_data(values)
+            project.save()
+
+            return HTTPFound(location=request.route_url('admin_project'))
+
+        except ValidationFailure, e:
+            form_render = e.render()
+
+    if not form_render:
+        form_render = form.render()
+
+    params = {
+        'form': Markup(form_render)
+    }
+
+    return render_to_response('admin/projects/create.html', params)
+
+
 @view_config(route_name='admin_project_edit', permission='authenticated', renderer='admin/projects/edit.html')
 def admin_project_edit(request):
     def default_values(schema, project):
         for field in schema.children:
             field.default = project[field.name]
 
+    
     project = Project.objects.get(token=request.matchdict['project'])
+    
     schema = ProjectFormSchema()
 
     default_values(schema, project)

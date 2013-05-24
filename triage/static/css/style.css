@@ -183,10 +183,11 @@ body {
 
 .error-list {
 	border: none;
+	table-layout: fixed;
 }
 
 .table tbody tr:hover td {
-	background-color: inherit;
+	background-color: #EEEEEE;
 }
 
 .error-list tbody tr td {
@@ -204,13 +205,18 @@ body {
 }
 
 .error-list td.error {
-	width: 700px;
+	max-width: 700px;
 }
 
-.error-list div.error {
+.error-list .error {
 	overflow: hidden;
 	width: inherit;
 	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.error-list div.error {
+	display: inline;
 }
 
 #information a.error {
@@ -222,14 +228,33 @@ body {
 	color: #aaa;
 }
 
+#information th {
+	white-space: nowrap;
+	border-bottom: 1px solid #DDDDDD;
+}
+
+#information th.active {
+	background-color: #0088CC;
+}
+
+#information th.active a {
+	color: #FFFFFF;
+}
+
 #information td.occurances {
 	width: 80px;
 	text-align: left;
+	white-space: nowrap;
 }
 
 #information td.date {
-	text-align: right;
+	text-align: center;
 	white-space: nowrap;
+}
+
+#information td.activity {
+	white-space: nowrap;
+	text-align: right;
 }
 
 #information .count {
@@ -257,6 +282,21 @@ body {
 
 .ie7 #information .dot {
 	display: inline;
+}
+
+/*	Actions
+	------------------------------------------------------------ */
+
+.open a[data-action="unresolve"] {
+	display: none;
+}
+
+.resolved a[data-action="resolve"] {
+	display: none;
+}
+
+.mine a[data-action="claim"] {
+	display: none;
 }
 
 /*	search box
@@ -518,6 +558,11 @@ body {
 	display: block;
 }
 
+.loading [class^="icon-"]{
+  background: url("../img/spinner.gif") no-repeat center center;
+}
+
+
 /*	Admin users
 	------------------------------------------------------------ */
 
@@ -541,4 +586,14 @@ body {
 
 .users .created {
 	width: 100px;
+}
+
+.graph {
+	min-width: 400px;
+	height: 400px;
+	margin: 0 auto;
+}
+
+.graph .occurrences {
+	display: none;
 }

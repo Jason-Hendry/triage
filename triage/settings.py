@@ -4,4 +4,4 @@ PROJECTS = {
     'frontend': {'id': 'frontend', 'name': 'Frontend', 'collection': 'frontend-errors'}
 }
 
-DEFAULT_PROJECT = 'contests'
+DEFAULT_PROJECT = None

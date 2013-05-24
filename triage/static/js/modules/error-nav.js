@@ -28,7 +28,7 @@ Triage.modules.errorNav = (function($, app) {
 			params['start'] = rowsLoaded; // start is 0 indexed
 		}
 
-		return window.location.origin + window.location.pathname + '?' + $.param(params);
+		return '//' + window.location.host + window.location.pathname + '?' + $.param(params);
 	};
 
 	var reloadList = function() {
@@ -62,6 +62,7 @@ Triage.modules.errorNav = (function($, app) {
 				button.attr('disabled', false);
 				$('.error-list tbody').append(data);
 				rowsLoaded = $('.error-list tbody tr').length;
+				app.trigger('nextpage.loaded');
 			}
 		});
 	};
@@ -69,10 +70,11 @@ Triage.modules.errorNav = (function($, app) {
 	var updateShowTabs = function(tab) {
 
 		show = tab.data('name');
+		$('#information').removeClass().addClass(show);
 		tab.siblings().removeClass('active').addClass('inactive');
 		tab.removeClass('inactive').addClass('active');
 
-		app.trigger('system.activecountchanged', parseInt(tab.find('.count').text()));
+		app.trigger('system.activecountchanged', parseInt(tab.find('.count').text(), 10));
 
 		reloadList();
 	};
@@ -110,8 +112,7 @@ Triage.modules.errorNav = (function($, app) {
 			params['search'] = search;
 		}
 
-		var url = window.location.origin + window.location.pathname
-			+ '/changes?' + $.param(params);
+		var url = window.location.origin + window.location.pathname + '/changes?' + $.param(params);
 
 		$.ajax({
 			url: url,
@@ -125,6 +126,28 @@ Triage.modules.errorNav = (function($, app) {
 		});
 	};
 
+	var processSelection = function(indicator, action) {
+		var ids = [];
+		$('.multiselect:checked').each(function(){
+			ids.push($(this).val());
+		});
+
+		if(ids.length > 0 ) {
+			var url = '//' + window.location.host + window.location.pathname + '/errors/' + ids.join(',') + '/mass/' + action;
+
+			indicator.addClass('loading');
+			$.ajax({
+				url: url,
+				success: function() {
+					reloadList();
+				},
+				complete: function() {
+					indicator.removeClass('loading');
+				}
+			});
+		}
+	};
+
 	return {
 		start: function() {
 			$('#error-tabs li').on('click', function() {
@@ -132,7 +155,7 @@ Triage.modules.errorNav = (function($, app) {
 				return false;
 			});
 
-			$('#order-items li').on('click', function() {
+			$('#order-items th a').parent().on('click', function() {
 				updateOrderTabs($(this));
 				return false;
 			});
@@ -146,19 +169,20 @@ Triage.modules.errorNav = (function($, app) {
 			$('.changes-info .reload').on('click', function() {
 				reloadList();
 				return false;
-			})
+			});
 
 			$('#aggregate-action-container a').on('click', function() {
-				alert("Not implemented. Go to https://github.com/lwc/triage to fork and fix.");
+				var link = $(this);
+				processSelection(link, link.data('action'));
 				return false;
-			})
+			});
 
 			app.on('error.seen', function(errorId) {
 				var currentTab = $('#error-tabs li.active');
 				var count;
 
 				if (currentTab.data('name') != 'mine') {
-					count = parseInt(currentTab.find('.count').text())-1;
+					count = parseInt(currentTab.find('.count').text(), 10)-1;
 					currentTab.find('.count').text(count);
 					app.trigger('system.activecountchanged', count);
 				}
@@ -175,9 +199,9 @@ Triage.modules.errorNav = (function($, app) {
 
 			$(function() {
 				var count = $('#error-tabs li.active .count');
-				app.trigger('system.activecountchanged', parseInt(count.text()));
+				app.trigger('system.activecountchanged', parseInt(count.text(), 10));
 
-				lastLoaded = parseInt($('.error-list tbody tr:first-child').data('timelatest'));
+				lastLoaded = parseInt($('.error-list tbody tr:first-child').data('timelatest'), 10);
 
 				window.setInterval(checkForUpdates, 600000);
 			});

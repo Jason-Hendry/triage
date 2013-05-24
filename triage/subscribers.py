@@ -1,7 +1,7 @@
 from pyramid import threadlocal
 from pyramid.security import authenticated_userid
 from pyramid.events import BeforeRender, ContextFound, subscriber
-from triage.models import User
+from triage.models.user import User
 from urllib import urlencode
 from webob.multidict import MultiDict
 from datetime import datetime, timedelta

@@ -1,6 +1,8 @@
 from math import ceil
+from furl import furl
+from datetime import tzinfo, timedelta
 
-from datetime import tzinfo, timedelta, datetime
+
 class FixedTimezone(tzinfo):
     """Fixed offset in minutes east from UTC."""
 
@@ -18,9 +20,6 @@ class FixedTimezone(tzinfo):
         return timedelta(0)
 
 
-
-from furl import furl
-
 class GithubLinker():
     def __init__(self, project_path, default_branch=None):
         if not default_branch:
@@ -30,27 +29,26 @@ class GithubLinker():
 
     def furl(self):
         return furl(self.project_path)
-    
+
     def to_project(self):
         return self.furl().url
 
     def to_commit(self, ref):
         if not ref:
             return ''
-        return self.furl().add(path='commits/' + str(ref)).url
+        return self.furl().add(path='commit/' + str(ref)).url
 
     def to_file(self, path, ref=None, line=None):
         fragment = ''
         if not ref:
             ref = self.default_branch
         if line:
-            fragment = 'L'+str(line)
+            fragment = 'L' + str(line)
 
         return self.furl().add(path='tree/'+str(ref)+'/'+path).set(fragment=fragment).url
 
     def to_diff(self, from_ref, to_ref):
         return self.furl().add(path='compare/'+ str(from_ref) + '...' + str(to_ref)).url
-
 
 
 class Paginator:

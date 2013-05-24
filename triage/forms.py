@@ -2,7 +2,7 @@ from colander import MappingSchema, SchemaNode
 from colander import String, Email, Integer
 from colander import Invalid
 from deform.widget import PasswordWidget, HiddenWidget
-from triage.models import User
+from triage.models.user import User
 from passlib.apps import custom_app_context as pwd_context
 
 

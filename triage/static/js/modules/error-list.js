@@ -61,11 +61,11 @@ Triage.modules.errorList = (function($, app) {
 		start: function() {
 			bindHotKeys(this);
 
-			$('.multiselect').on('click', function(e)  {
+			$('.error-list').on('click', '.multiselect', function(e)  {
 				e.stopPropagation();
 			});
 
-			$('.error-list').on('click', '.error-list tr', function() {
+			$('.error-list').on('click', '.error-list tbody tr', function() {
 				changeSelection(this);
 				activateSelection();
 			});

@@ -16,24 +16,33 @@
 				An unknown error has occurred
 			{% endif %}
 		</div>
+		{% include ['errors/sparkline.html'] %}
 		<div class="detail">
 			<span class="detail-type">{{ error.type }} in {{ basename(error.file) }} on line {{ error.line }}</span>
 			<span class="detail-tags">{% for tag in error.tags %}<span class="label label-{{ tag }}">{{ tag }}</span>{% endfor %}</span>
+
+
 		</div>
 		{% endblock %}
 	</td>
-	<td class="date">
-		{% block right_cell %}
-		<span class="tooltip-toggle" data-original-title="First seen: {{ date(error.timefirst) }}">{{ date(error.timelatest) }}</span><br/>
-		{% if error.claimedby and error.claimedby == user %}
-			<span class="claimed-by"><i class="icon-star"></i>&nbsp;You</span>
-		{% elif error.claimedby %}
-			<span class="claimed-by"><i class="icon-star"></i>&nbsp;{{ error.claimedby.name }}</span>
+	<td class="activity">
+		{% if error.claimedby %}
+			<span class="tooltip-toggle claimed-by" data-original-title="Claimed by {{ error.claimedby.name }}">
+				<i class="icon-star"></i> {% if error.claimedby == user %}You{% endif %}
+			</span>
 		{% endif %}
+
 		{% if error.comments %}
-			<i class="icon-comment"></i>&nbsp;{{ error.comments.__len__() }} comments
+			<span class="tooltip-toggle" data-original-title="Last comment by {{ error.comments[-1].author.name }}">
+				<i class="icon-comment"></i> {{ error.comments.__len__() }}
+			</span>
 		{% endif %}
-		{% endblock %}
+	</td>
+	<td class="date">
+		{{ date(error.timefirst) }}
+	</td>
+	<td class="date">
+		{{ date(error.timelatest) }}
 	</td>
 	{% endblock %}
 </tr>
