@@ -55,4 +55,5 @@ class Simple(resource.Resource):
 
 site = server.Site(Simple())
 reactor.listenTCP(9090, site)
+logging.info('Listening on {}'.format(9090))
 reactor.run()
