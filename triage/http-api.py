@@ -3,7 +3,11 @@ import mongoengine
 import logging
 from sys import argv
 from pyramid.paster import get_appsettings
-from models import Error, ErrorHasher, ErrorInstance
+from models.error import Error
+from models.error_hasher import ErrorHasher
+from models.error_instance import ErrorInstance
+from models.hourly_occurrence import HourlyOccurrence
+from models.daily_occurrence import DailyOccurrence
 from time import time
 
 from twisted.web import server, resource
@@ -32,7 +36,6 @@ class Simple(resource.Resource):
                     logging.debug('found object in message')
 
                     msg['hash'] = ErrorHasher(msg).get_hash()
-                    logging.debug(msg)
                     if 'timestamp' not in msg:
                         msg['timestamp'] = int(time())
 
@@ -40,6 +43,9 @@ class Simple(resource.Resource):
                     logging.debug('saved error')
 
                     ErrorInstance.from_raw(msg).save(safe=False)
+                    HourlyOccurrence.from_msg(msg)
+                    DailyOccurrence.from_msg(msg)
+
                     logging.debug('saved instance')
 
         except Exception, a:
