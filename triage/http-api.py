@@ -28,10 +28,12 @@ class Simple(resource.Resource):
     isLeaf = True
     def render_POST(self, request):
         try:
-            unpacker = json.loads(request.content.read())
+            postData = request.content.read()
+            unpacker = json.loads(postData)
             logging.debug('fed data to unpacker')
             for msg in unpacker:
                 logging.debug('found message in unpacker')
+
                 if type(msg) == dict:
                     logging.debug('found object in message')
 
@@ -50,9 +52,11 @@ class Simple(resource.Resource):
 
         except Exception, a:
             logging.exception('Failed to process error')
+            logging.info(postData)
             return 'FAILED';
         return "OK";
 
 site = server.Site(Simple())
+logging.info('Starting HTTP Server on port '+'9090')
 reactor.listenTCP(9090, site)
 reactor.run()
